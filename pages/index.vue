@@ -21,42 +21,58 @@ export default {
       totalFrame: 0
     }
   },
-  components: {},
-  created() {
-  },
   mounted: function() {
-    this.screenWidth = window.innerWidth
-    this.screenHeight = window.innerHeight
-
-    this.border = this.screenHeight / 2
-
-    this.$nextTick(() => {
-      this.canvas = document.getElementById('canvas')
-      this.canvas.addEventListener('touchstart', this.OnTouch, false)
-      this.canvas.addEventListener('touchmove', this.MoveTouch, false)
-      this.canvas.addEventListener('touchend', this.LeaveTouch, false)
-
-      this.ctx = this.canvas.getContext('2d')
-    })
-
-    this.connection = new WebSocket('ws://192.168.0.19:5000/')
-
-    this.connection.onopen = function(e) {
-      console.log(e)
-    }
+    this.InitConfig() //Configの初期化
+    this.InitCanvas() //Canvasの初期化
+    this.InitWebsocket('ws://192.168.0.19:5000/') //WebSocketの初期化
   },
   methods: {
-    OnTap() {
+    //Configの初期化
+    InitConfig() {
+      this.screenWidth = window.innerWidth
+      this.screenHeight = window.innerHeight
+
+      this.border = this.screenHeight / 2
+    },
+
+    //Canvasの初期化
+    InitCanvas() {
+      this.$nextTick(() => {
+        this.canvas = document.getElementById('canvas')
+        this.canvas.addEventListener('touchstart', this.StartTouch, false)
+        this.canvas.addEventListener('touchmove', this.MoveTouch, false)
+        this.canvas.addEventListener('touchend', this.LeaveTouch, false)
+
+        this.ctx = this.canvas.getContext('2d')
+      })
+    },
+
+    InitWebsocket(_address) { 
+      //接続する
+      this.connection = new WebSocket(_address)
+
+      //接続成功時の処理
+      this.connection.onopen = function(e) {
+        console.log(e)
+      }
+    },
+
+    //WebSocketを送る
+    WSSend() {
       this.connection.send('Hoge')
       console.log("Send")
     },
-    OnTouch(e) {      
+
+    //タッチが開始したとき
+    StartTouch(e) {      
       let y = e.touches[0].pageY
       y -= this.canvas.offsetTop
       this.startY = y
 
       e.preventDefault()
     },
+
+    //指が動いているとき
     MoveTouch(e) {      
       let y = e.touches[0].pageY
       y -= this.canvas.offsetTop
@@ -73,6 +89,8 @@ export default {
       this.ctx.fillStyle = "rgba(200,200,200,0.8)"
       this.ctx.fill()
     },
+
+    //指が離れたとき
     LeaveTouch(e) {
       this.distance = this.startY - this.endY
 
@@ -86,7 +104,7 @@ export default {
 
           if(this.distance > 100) {
 
-            this.OnTap()
+            this.WSSend()
           }
         }
       }
