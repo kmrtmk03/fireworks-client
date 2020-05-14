@@ -1,4 +1,5 @@
 import SenderWebsocket from './SenderWebsocket.js'
+import Database from './Database'
 
 export default class Sender {
   constructor(props) {
@@ -9,6 +10,9 @@ export default class Sender {
     this.endY = 0
     this.distance = 0
     this.border = window.innerHeight / 2
+
+    //Databaseの確認
+    Database.Setter("HAAAA")
 
     //初期化処理
     this.Init()
@@ -30,6 +34,10 @@ export default class Sender {
   //タッチが開始したとき
   StartTouch() {
     this.canvas.addEventListener('touchstart', e => {
+      
+      //Databaseの確認
+      console.log(Database.Getter())
+
       console.log(this.canvas)
       let y = e.touches[0].pageY
       y -= this.canvas.offsetTop
